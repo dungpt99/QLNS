@@ -1,0 +1,18 @@
+{
+  "extends": ["prettier", "airbnb"],
+  "rules": {
+    "semi": ["off"],
+    "linebreak-style": ["off"],
+    "import/newline-after-import": ["off"],
+    "no-console": ["off"],
+    "spaced-comment": ["off"],
+    "no-unused-vars": ["error", { "argsIgnorePattern": "req|res|next|var" }],
+    "class-methods-use-this": ["off"],
+    "object-curly-newline": ["off"],
+    "no-param-reassign": ["off"],
+    "consistent-return": ["off"],
+    "comma-dangle": ["off"],
+    "arrow-body-style": ["off"],
+    "no-shadow": ["off"]
+  }
+}
