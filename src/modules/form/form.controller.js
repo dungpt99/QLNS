@@ -2,6 +2,8 @@
 const AppError = require('../../error/appError')
 const { users, forms } = require('../model')
 const { schemaValidate } = require('./form.validate')
+const transporter = require('../mailer')
+
 class FormController {
   //POST create form
   async create(req, res, next) {
@@ -23,6 +25,27 @@ class FormController {
         }
       })
       const listForm = await forms.findAll({ include: [users] })
+
+      const listEmail = []
+      for (const element of listUser) {
+        listEmail.push(element.email)
+      }
+
+      //Send mail to user
+      const mailOption = {
+        from: '"Notification" <dungpt.ct2@gmail.com>',
+        to: listEmail,
+        subject: 'Notification',
+        html: `<h2> Admin created ${type} form </h2>`,
+      }
+
+      //Sending mail
+      transporter.sendMail(mailOption, (err) => {
+        if (err) {
+          console.log(err)
+        }
+      })
+
       res.status(200).json({
         status: 'Success',
         data: {

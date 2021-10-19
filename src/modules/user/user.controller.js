@@ -1,8 +1,8 @@
 const bcrypt = require('bcrypt')
-const nodemailer = require('nodemailer')
 const { users, roles } = require('../model')
 const validate = require('./user.validate')
 const AppError = require('../../error/appError')
+const transporter = require('../mailer')
 
 class UserController {
   // GET
@@ -35,16 +35,6 @@ class UserController {
 
   //POST create user
   async signup(req, res, next) {
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL,
-        pass: process.env.EMAILPASSWORD,
-      },
-      tls: {
-        rejectUnauthorized: false,
-      },
-    })
     const data = req.body
     try {
       const value = await validate.schemaValidate.validateAsync(data)
@@ -73,7 +63,6 @@ class UserController {
                 <h4>Please verify your mail to continue...</h4>
                 <a href='http://${req.headers.host}/users/verify-email?username=${user.username}'>Verify your email</a>`,
       }
-
       // Sending mail
       transporter.sendMail(mailOption, (err) => {
         if (err) {

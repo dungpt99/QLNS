@@ -3,6 +3,7 @@ const { Sequelize } = require('sequelize')
 const sequelize = new Sequelize('project3', process.env.USER, process.env.PASSWORD, {
   host: 'localhost',
   dialect: 'postgres',
+  logging: false,
 })
 
 async function testConnect() {
