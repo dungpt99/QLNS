@@ -6,12 +6,12 @@ class RoleController {
   //POST create role
   async create(req, res, next) {
     const data = req.body
-    const user = await users.findOne({ where: { username: req.user.username } })
+    const user = await users.findOne({ where: { username: data.username } })
     try {
       const value = await schemaValidate.validateAsync(data)
-      const { name, read, write, update, del, approve } = value
+      const { read, write, update, del, approve } = value
       const role = await roles.create({
-        name,
+        role: value.role,
       })
       await permissions.bulkCreate([
         { roleId: role.id, action: read.action, checkAction: read.checkAction },
@@ -81,7 +81,9 @@ class RoleController {
 
   //GET listRole
   async show(req, res, next) {
-    const listRole = await roles.findAll()
+    const listRole = await roles.findAll({
+      include: [users],
+    })
     res.status(200).json({
       data: listRole,
     })
@@ -102,8 +104,8 @@ class RoleController {
     const data = req.body
     try {
       const value = await schemaValidate.validateAsync(data)
-      const { name, read, write, update, del, approve } = value
-      await roles.update({ name }, { where: { id: roleId } })
+      const { read, write, update, del, approve } = value
+      await roles.update({ role: value.role }, { where: { id: roleId } })
       const role = await roles.findByPk(roleId)
       await permissions.destroy({ where: { roleId: role.id } })
       await permissions.bulkCreate([

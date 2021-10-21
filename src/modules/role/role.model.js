@@ -8,7 +8,7 @@ const role = sequelize.define('roles', {
     allowNull: false,
     defaultValue: DataTypes.UUIDV4,
   },
-  name: {
+  role: {
     type: DataTypes.ENUM,
     values: ['Admin', 'Director', 'Hr', 'Manager', 'Employee'],
   },

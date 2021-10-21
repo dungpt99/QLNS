@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt')
-const { users, roles } = require('../model')
+const { users, roles, departments } = require('../model')
 const validate = require('./user.validate')
 const AppError = require('../../error/appError')
 const transporter = require('../mailer')
@@ -7,7 +7,7 @@ const transporter = require('../mailer')
 class UserController {
   // GET
   async show(req, res, next) {
-    const listUser = await users.findAll({ include: [roles] })
+    const listUser = await users.findAll({ include: [roles, departments] })
     if (listUser === null) {
       return next(new AppError('', 'Success', 200))
     }
@@ -19,18 +19,14 @@ class UserController {
 
   // GET(by id)
   async find(req, res, next) {
-    const { id } = req.params
-    try {
-      const user = await users.findByPk(id)
-      res.status(200).json({
-        status: 'Success',
-        data: {
-          user,
-        },
-      })
-    } catch (error) {
-      res.send(error)
-    }
+    const userId = req.params.id
+    const user = await users.findByPk(userId)
+    res.status(200).json({
+      status: 'Success',
+      data: {
+        user,
+      },
+    })
   }
 
   //POST create user
@@ -81,7 +77,7 @@ class UserController {
     const userId = req.params.id
     const data = req.body
     try {
-      const value = await validate.schemaValidate.validateAsync(data)
+      const value = await validate.schemaValidateEditUser.validateAsync(data)
       const { fname, lname, address } = value
       await users.update(
         {

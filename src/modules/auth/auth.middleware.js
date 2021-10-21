@@ -22,7 +22,7 @@ exports.restrictTo = (...role) => {
     })
     const arr = []
     user.roles.forEach(async (e) => {
-      arr.push(e.name)
+      arr.push(e.role)
     })
     for (let i = 0; i < role.length; i++) {
       if (arr.includes(role[i])) {
@@ -40,17 +40,15 @@ exports.permission = (per) => {
       include: [roles],
     })
     const array = []
-    user.roles.forEach(async (e) => {
+    for (const e of user.roles) {
       const permission = await permissions.findAll({ where: { roleId: e.id, checkAction: true } })
-      if (permission !== null) {
-        permission.forEach((element) => {
-          array.push(element.action)
-        })
-        if (!array.includes(per)) {
-          return next(new AppError('You do not have permission to perform this action', 'Fail', 403))
-        }
-        next()
+      for (const p of permission) {
+        array.push(p.action)
       }
-    })
+    }
+    if (!array.includes(per)) {
+      return next(new AppError('You do not have permission to perform this action', 'Fail', 403))
+    }
+    next()
   }
 }

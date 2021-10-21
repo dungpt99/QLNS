@@ -32,6 +32,6 @@ app.all('*', (req, res, next) => {
 
 app.use(errorHandler)
 
-app.listen(port, () => {
+module.exports = app.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`)
 })

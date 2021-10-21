@@ -1,6 +1,6 @@
 //const nodemailer = require('nodemailer')
 const AppError = require('../../error/appError')
-const { users, forms } = require('../model')
+const { users, forms, departments, roles } = require('../model')
 const { schemaValidate } = require('./form.validate')
 const transporter = require('../mailer')
 
@@ -78,17 +78,28 @@ class FormController {
     const formId = req.params.id
     const data = req.body
     const form = await forms.findByPk(formId)
-    if (form === null) {
-      next(new AppError('Can not find form', 'Fail', 404))
-    } else {
-      form.comment = data.comment
-      form.status = 'approval'
-      await form.save()
-      res.status(200).json({
-        status: 'Success',
-        data: form,
-      })
+    const user = await users.findOne({
+      where: {
+        id: form.userId,
+      },
+      include: [departments, roles],
+    })
+    const userApprove = await users.findOne({
+      where: {
+        username: req.user.username,
+      },
+      include: [departments, roles],
+    })
+    if (user.departments[0].name === userApprove.departments[0].name) {
+      // if(user.roles)
     }
+    // form.comment = data.comment
+    // form.status = 'approval'
+    // await form.save()
+    res.status(200).json({
+      status: 'Success',
+      data: { user, userApprove },
+    })
   }
 
   //PUT HR done

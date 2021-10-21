@@ -5,13 +5,9 @@ const reportRouter = require('./report/report.route')
 const roleRouter = require('./role/role.route')
 const permissionRouter = require('./permission/permission.route')
 const departmentRouter = require('./department/department.route')
-const departmentERouter = require('./departmentEmployee/departmentEmployee.route')
-const departmentMRouter = require('./departmentManager/deparmentManager.route')
 
 function route(app) {
   app.use('/', authRouter)
-  app.use('/departmentEmployee', departmentERouter)
-  app.use('/departmentManager', departmentMRouter)
   app.use('/department', departmentRouter)
   app.use('/permissions', permissionRouter)
   app.use('/roles', roleRouter)

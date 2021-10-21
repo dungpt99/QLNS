@@ -12,11 +12,11 @@ const schemaValidate = Joi.object().keys({
   status: Joi.boolean(),
 })
 
-const passwordValidate = Joi.object().keys({
-  password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
-  newPassword: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
-  repeatPassword: Joi.ref('newPassword'),
+const schemaValidateEditUser = Joi.object().keys({
+  fname: Joi.string().min(3).max(30).required(),
+  lname: Joi.string().min(3).max(30).required(),
   email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }),
+  address: Joi.string().min(3).max(30).required(),
 })
 
-module.exports = { schemaValidate, passwordValidate }
+module.exports = { schemaValidate, schemaValidateEditUser }

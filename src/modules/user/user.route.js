@@ -38,6 +38,9 @@ const upload = multer({ storage })
  *              address:
  *                 type: string
  *                 required: true
+ *              photo:
+ *                type: string
+ *                format: binary
  *      editUser:
  *          type: object
  *          properties:
@@ -47,15 +50,12 @@ const upload = multer({ storage })
  *              lname:
  *                 type: string
  *                 required: true
- *              username:
- *                 type: string
- *                 required: true
  *              address:
  *                 type: string
  *                 required: true
- *              role:
+ *              photo:
  *                 type: string
- *                 required: true
+ *                 format: binary
  *components:
  *      securitySchemes:
  *          bearerAuth:
@@ -112,7 +112,7 @@ router.get('/:id', authenToken, permission('READ'), userController.find)
  *                description: id of the user
  *          requestBody:
  *              content:
- *                  application/json:
+ *                  multipart/form-data:
  *                      schema:
  *                          $ref: '#/definitions/editUser'
  *          responses:
@@ -147,7 +147,7 @@ router.get('/', authenToken, userController.show)
  *    tags: [Auth]
  *    requestBody:
  *      content:
- *          application/json:
+ *          multipart/form-data:
  *              schema:
  *                  $ref: '#/definitions/User'
  *    responses:
@@ -179,7 +179,7 @@ router.post('/', upload.single('photo'), userController.signup)
  *              500:
  *                  description: Fail
  */
-router.delete('/:id', authenToken, userController.delete)
+router.delete('/:id', authenToken, restrictTo('Admin'), permission('DELETE'), userController.delete)
 
 router.param('id', userController.checkID)
 

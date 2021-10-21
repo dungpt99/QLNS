@@ -1,11 +1,11 @@
 const AppError = require('../../error/appError')
-const { departments } = require('../model')
+const { departments, users } = require('../model')
 const { schemaValidate } = require('./department.validate')
 class DepartmentController {
   //POST create department
   async create(req, res, next) {
     const data = req.body
-    console.log(data)
+    const user = await users.findOne({ where: { username: data.username } })
     try {
       const value = await schemaValidate.validateAsync(data)
       const { name, address } = value
@@ -13,8 +13,16 @@ class DepartmentController {
         name,
         address,
       })
+      await department.addUsers(user)
+      await user.addDepartments(department)
+      const result = await departments.findOne({
+        where: {
+          name,
+        },
+        include: [users],
+      })
       res.status(200).json({
-        department,
+        result,
       })
     } catch (error) {
       next(new AppError(error, 'Fail', 400))
@@ -32,6 +40,7 @@ class DepartmentController {
   //GET department
   async find(req, res, next) {
     const departmentId = req.params.id
+    console.log(departmentId)
     const department = await departments.findByPk(departmentId)
     res.status(200).json({
       department,
@@ -42,6 +51,7 @@ class DepartmentController {
   async edit(req, res, next) {
     const departmentId = req.params.id
     const data = req.body
+    const user = await users.findOne({ where: { username: data.username } })
     try {
       const value = await schemaValidate.validateAsync(data)
       const { name, address } = value
@@ -57,8 +67,16 @@ class DepartmentController {
         }
       )
       const department = await departments.findByPk(departmentId)
+      await department.addUsers(user)
+      await user.addDepartments(department)
+      const result = await departments.findOne({
+        where: {
+          name,
+        },
+        include: [users],
+      })
       res.status(200).json({
-        department,
+        result,
       })
     } catch (error) {
       next(new AppError(error, 'Fail', 400))
