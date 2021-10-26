@@ -45,26 +45,27 @@ class UserController {
         userImg: req.file.path,
         status: false,
       })
+      //Send verification mail to user
+      const mailOption = {
+        from: '"New user" <dungpt.ct2@gmail.com>',
+        to: user.email,
+        subject: 'DungPT -Welcome to VMO',
+        html: `<h2> Username:${user.username} </h2>
+                <h2>Password:${user.password}</h2>
+                <a href='http://${req.headers.host}/users/verify-email?username=${user.username}'>Click here to active your account</a>`,
+      }
       const salt = await bcrypt.genSalt(10)
       const hashPassword = await bcrypt.hash(user.password, salt)
       user.password = hashPassword
       await user.save()
-
-      //Send verification mail to user
-      const mailOption = {
-        from: '"Verify your email" <dungpt.ct2@gmail.com>',
-        to: user.email,
-        subject: 'DungPT -verify your email',
-        html: `<h2> ${user.username}! Thanks for your registering on our site </h2>
-                <h4>Please verify your mail to continue...</h4>
-                <a href='http://${req.headers.host}/users/verify-email?username=${user.username}'>Verify your email</a>`,
-      }
       // Sending mail
       transporter.sendMail(mailOption, (err) => {
         if (err) {
           console.log(err)
         } else {
-          next(new AppError('Verfication email is sent your gmail account', 'Success', 200))
+          res.status(200).json({
+            message: 'Verification email is sent your gmail account',
+          })
         }
       })
     } catch (error) {
@@ -89,6 +90,34 @@ class UserController {
         {
           where: {
             id: userId,
+          },
+        }
+      )
+      res.status(200).json({
+        status: 'Success',
+      })
+    } catch (error) {
+      next(new AppError(error.details[0].message, 'Fail', 400))
+    }
+  }
+
+  // PUT edit user
+  async editP(req, res, next) {
+    const user = await users.findOne({ where: { username: req.user.username } })
+    const data = req.body
+    try {
+      const value = await validate.schemaValidateEditUser.validateAsync(data)
+      const { fname, lname, address } = value
+      await users.update(
+        {
+          fname,
+          lname,
+          address,
+          userImg: req.file.path,
+        },
+        {
+          where: {
+            id: user.id,
           },
         }
       )

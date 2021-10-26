@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const departmentController = require('./department.controller')
-const { authenToken } = require('../auth/auth.middleware')
+const { authenToken, restrictTo, permission } = require('../auth/auth.middleware')
 
 /**
  * @swagger
@@ -9,13 +9,19 @@ const { authenToken } = require('../auth/auth.middleware')
  *      Department:
  *          type: object
  *          properties:
- *              username:
- *                 type: string
- *                 required: true
  *              name:
  *                 type: string
  *                 required: true
  *              address:
+ *                 type: string
+ *                 required: true
+ *      addUser:
+ *          type: object
+ *          properties:
+ *              username:
+ *                 type: string
+ *                 required: true
+ *              department:
  *                 type: string
  *                 required: true
  * tags:
@@ -44,8 +50,29 @@ const { authenToken } = require('../auth/auth.middleware')
  *       500:
  *          description: Failure in create Department
  */
-router.post('/', authenToken, departmentController.create)
+router.post('/', authenToken, restrictTo('Admin'), permission('WRITE'), departmentController.create)
 
+/**
+ * @swagger
+ * /department/addUser:
+ *  post:
+ *    summary: add user
+ *    description: add user
+ *    tags: [Department]
+ *    security:
+ *          - bearerAuth: []
+ *    requestBody:
+ *      content:
+ *          Application/json:
+ *              schema:
+ *                  $ref: '#/definitions/addUser'
+ *    responses:
+ *       200:
+ *          description: Success
+ *       500:
+ *          description: Fail
+ */
+router.post('/addUser', authenToken, restrictTo('Admin'), permission('WRITE'), departmentController.addUser)
 /**
  * @swagger
  * /department:
@@ -60,7 +87,7 @@ router.post('/', authenToken, departmentController.create)
  *          500:
  *              description: Fail
  */
-router.get('/', authenToken, departmentController.show)
+router.get('/', authenToken, permission('READ'), departmentController.show)
 
 /**
  * @swagger
@@ -84,7 +111,7 @@ router.get('/', authenToken, departmentController.show)
  *              500:
  *                  description: Fail
  */
-router.get('/:id', authenToken, departmentController.find)
+router.get('/:id', authenToken, permission('READ'), departmentController.find)
 
 /**
  * @swagger
@@ -114,7 +141,7 @@ router.get('/:id', authenToken, departmentController.find)
  *                  description: Fail
  *
  */
-router.put('/:id', authenToken, departmentController.edit)
+router.put('/:id', authenToken, restrictTo('Admin'), permission('UPDATE'), departmentController.edit)
 
 /**
  * @swagger
@@ -137,7 +164,7 @@ router.put('/:id', authenToken, departmentController.edit)
  *              500:
  *                  description: Fail
  */
-router.delete('/:id', authenToken, departmentController.delete)
+router.delete('/:id', authenToken, restrictTo('Admin'), permission('DELETE'), departmentController.delete)
 router.param('id', departmentController.checkID)
 
 module.exports = router

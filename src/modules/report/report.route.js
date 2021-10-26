@@ -25,7 +25,13 @@ const { authenToken, restrictTo, permission } = require('../auth/auth.middleware
  *          500:
  *              description: Fail
  */
-router.get('/job', authenToken, restrictTo('Admin', 'Director', 'Hr'), permission('READ'), reportController.job)
+router.get(
+  '/job',
+  authenToken,
+  restrictTo('Admin', 'Director', 'Manager', 'Hr'),
+  permission('READ'),
+  reportController.job
+)
 
 /**
  * @swagger
@@ -41,6 +47,12 @@ router.get('/job', authenToken, restrictTo('Admin', 'Director', 'Hr'), permissio
  *          500:
  *              description: Fail
  */
-router.get('/review', authenToken, restrictTo('Admin', 'Director', 'Hr'), permission('READ'), reportController.review)
+router.get(
+  '/review',
+  authenToken,
+  restrictTo('Admin', 'Director', 'Manager', 'Hr'),
+  permission('READ'),
+  reportController.review
+)
 
 module.exports = router

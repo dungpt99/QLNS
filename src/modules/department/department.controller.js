@@ -1,11 +1,10 @@
 const AppError = require('../../error/appError')
-const { departments, users } = require('../model')
+const { departments, users, roles } = require('../model')
 const { schemaValidate } = require('./department.validate')
 class DepartmentController {
   //POST create department
   async create(req, res, next) {
     const data = req.body
-    const user = await users.findOne({ where: { username: data.username } })
     try {
       const value = await schemaValidate.validateAsync(data)
       const { name, address } = value
@@ -13,16 +12,8 @@ class DepartmentController {
         name,
         address,
       })
-      await department.addUsers(user)
-      await user.addDepartments(department)
-      const result = await departments.findOne({
-        where: {
-          name,
-        },
-        include: [users],
-      })
       res.status(200).json({
-        result,
+        department,
       })
     } catch (error) {
       next(new AppError(error, 'Fail', 400))
@@ -31,7 +22,7 @@ class DepartmentController {
 
   //GET listDepartment
   async show(req, res, next) {
-    const listDepartment = await departments.findAll()
+    const listDepartment = await departments.findAll({ include: [users] })
     res.status(200).json({
       listDepartment,
     })
@@ -51,7 +42,6 @@ class DepartmentController {
   async edit(req, res, next) {
     const departmentId = req.params.id
     const data = req.body
-    const user = await users.findOne({ where: { username: data.username } })
     try {
       const value = await schemaValidate.validateAsync(data)
       const { name, address } = value
@@ -67,13 +57,30 @@ class DepartmentController {
         }
       )
       const department = await departments.findByPk(departmentId)
-      await department.addUsers(user)
-      await user.addDepartments(department)
-      const result = await departments.findOne({
-        where: {
-          name,
+      res.status(200).json({
+        department,
+      })
+    } catch (error) {
+      next(new AppError(error, 'Fail', 400))
+    }
+  }
+
+  //POST add user
+  async addUser(req, res, next) {
+    const data = req.body
+    try {
+      const user = await users.findOne({
+        where: { username: data.username },
+        include: {
+          model: roles,
         },
-        include: [users],
+      })
+      const department = await departments.findOne({ where: { name: data.department } })
+      await user.addDepartments(department)
+      await department.addUsers(user)
+      const result = await users.findOne({
+        where: { username: data.username },
+        include: [roles, departments],
       })
       res.status(200).json({
         result,

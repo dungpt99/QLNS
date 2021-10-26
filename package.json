@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon app.js",
     "start:prod": " cross-env NODE_ENV=production nodemon app.js ",
-    "test": "mocha './src/modules/**/*.test.js'"
+    "test": "mocha './src/modules/*.test.js'"
   },
   "keywords": [],
   "author": "",

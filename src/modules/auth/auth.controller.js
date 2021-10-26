@@ -47,13 +47,13 @@ class AuthController {
   // Refresh Token
   async refreshToken(req, res, next) {
     const refreshToken = req.body.token
-    const result = await token.findAll({
+    const result = await token.findOne({
       where: {
         token: refreshToken,
       },
     })
     if (result === null) {
-      next(new AppError('Please login again', 'Fail', 403))
+      return next(new AppError('Please login again', 'Fail', 403))
     }
 
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, data) => {
@@ -62,7 +62,7 @@ class AuthController {
         { username: data.username, email: data.email, role: data.role },
         process.env.ACCESS_TOKEN_SECRET,
         {
-          expiresIn: '60s',
+          expiresIn: '600s',
         }
       )
       res.status(200).json({ accessToken })

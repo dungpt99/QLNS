@@ -67,6 +67,54 @@ router.get('/', authenToken, restrictTo('Admin', 'Director', 'Hr'), permission('
 
 /**
  * @swagger
+ * /forms/submit:
+ *   get:
+ *      summary: Returns list of form
+ *      tags: [Form]
+ *      security:
+ *          - bearerAuth: []
+ *      responses:
+ *          200:
+ *              description: The list of form
+ *          500:
+ *              description: Fail
+ */
+router.get('/submit', authenToken, formController.showSubmitted)
+
+/**
+ * @swagger
+ * /forms/approval:
+ *   get:
+ *      summary: Returns list of form
+ *      tags: [Form]
+ *      security:
+ *          - bearerAuth: []
+ *      responses:
+ *          200:
+ *              description: The list of form
+ *          500:
+ *              description: Fail
+ */
+router.get('/approval', authenToken, formController.showApproval)
+
+/**
+ * @swagger
+ * /forms/closed:
+ *   get:
+ *      summary: Returns list of form
+ *      tags: [Form]
+ *      security:
+ *          - bearerAuth: []
+ *      responses:
+ *          200:
+ *              description: The list of form
+ *          500:
+ *              description: Fail
+ */
+router.get('/closed', authenToken, formController.showClose)
+
+/**
+ * @swagger
  * /forms/{form_id}:
  *      get:
  *          summary: Get form
@@ -87,24 +135,17 @@ router.get('/', authenToken, restrictTo('Admin', 'Director', 'Hr'), permission('
  *              500:
  *                  description: Fail
  */
-router.get('/:id', authenToken, restrictTo('Admin', 'Director', 'Hr'), permission('READ'), formController.find)
+router.get('/:id', authenToken, permission('READ'), formController.find)
 
 /**
  * @swagger
- * /forms/{id}:
+ * /forms/send:
  *      put:
  *          summary: send form
  *          description: send form
  *          tags: [Form]
  *          security:
  *              - bearerAuth: []
- *          parameters:
- *              - in: path
- *                name: id
- *                schema:
- *                  type: string
- *                required: true
- *                description: id of the form
  *          responses:
  *              200:
  *                  description: Success
@@ -112,7 +153,7 @@ router.get('/:id', authenToken, restrictTo('Admin', 'Director', 'Hr'), permissio
  *                  description: Fail
  *
  */
-router.put('/:id', authenToken, formController.send)
+router.put('/send', authenToken, formController.send)
 
 /**
  * @swagger
@@ -142,7 +183,7 @@ router.put('/:id', authenToken, formController.send)
  *                  description: Fail
  *
  */
-router.put('/approval/:id', authenToken, restrictTo('Manager'), formController.approval)
+router.put('/approval/:id', authenToken, formController.approval)
 
 /**
  * @swagger
@@ -167,7 +208,7 @@ router.put('/approval/:id', authenToken, restrictTo('Manager'), formController.a
  *                  description: Fail
  *
  */
-router.put('/done/:id', authenToken, restrictTo('Admin'), formController.close)
+router.put('/done/:id', authenToken, restrictTo('Admin', 'Hr'), formController.close)
 
 router.param('id', formController.checkID)
 module.exports = router

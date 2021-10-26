@@ -92,7 +92,34 @@ router.get('/verify-email', userController.verifyEmail)
  *              500:
  *                  description: Fail
  */
-router.get('/:id', authenToken, permission('READ'), userController.find)
+router.get(
+  '/:id',
+  authenToken,
+  restrictTo('Admin', 'Director', 'Manager', 'Hr'),
+  permission('READ'),
+  userController.find
+)
+
+/**
+ * @swagger
+ * /users/profile:
+ *      put:
+ *          summary: update user
+ *          description: update user
+ *          tags: [Users]
+ *          security:
+ *              - bearerAuth: []
+ *          requestBody:
+ *              content:
+ *                  multipart/form-data:
+ *                      schema:
+ *                          $ref: '#/definitions/editUser'
+ *          responses:
+ *              200:
+ *                  description: Success
+ *
+ */
+router.put('/profile', authenToken, permission('UPDATE'), upload.single('photo'), userController.editP)
 
 /**
  * @swagger
@@ -120,7 +147,7 @@ router.get('/:id', authenToken, permission('READ'), userController.find)
  *                  description: Success
  *
  */
-router.put('/:id', authenToken, permission('UPDATE'), upload.single('photo'), userController.edit)
+router.put('/:id', authenToken, restrictTo('Admin'), permission('UPDATE'), upload.single('photo'), userController.edit)
 
 /**
  * @swagger
@@ -136,7 +163,7 @@ router.put('/:id', authenToken, permission('UPDATE'), upload.single('photo'), us
  *          500:
  *              description: Fail
  */
-router.get('/', authenToken, userController.show)
+router.get('/', authenToken, restrictTo('Admin'), permission('READ'), userController.show)
 
 /**
  * @swagger
@@ -144,7 +171,9 @@ router.get('/', authenToken, userController.show)
  *  post:
  *    summary: Create new user
  *    description: Create new user
- *    tags: [Auth]
+ *    tags: [Users]
+ *    security:
+ *          - bearerAuth: []
  *    requestBody:
  *      content:
  *          multipart/form-data:
@@ -156,7 +185,7 @@ router.get('/', authenToken, userController.show)
  *       500:
  *          description: Failure in create user
  */
-router.post('/', upload.single('photo'), userController.signup)
+router.post('/', authenToken, restrictTo('Admin'), permission('WRITE'), upload.single('photo'), userController.signup)
 
 /**
  * @swagger
