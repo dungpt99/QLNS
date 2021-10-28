@@ -7,7 +7,7 @@ const { authenToken, restrictTo, permission } = require('../auth/auth.middleware
  * @swagger
  * tags:
  *    name: Report
- *    description: The DepartmentManager managing  API
+ *    description: The report managing  API
  *
  */
 

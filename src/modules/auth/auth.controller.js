@@ -22,7 +22,7 @@ class AuthController {
         const accessToken = jwt.sign(
           { username: user.username, email: user.email, role: user.role },
           process.env.ACCESS_TOKEN_SECRET,
-          { expiresIn: '60s' }
+          { expiresIn: '600s' }
         )
         const refreshToken = jwt.sign(
           { username: user.username, email: user.email, role: user.role },

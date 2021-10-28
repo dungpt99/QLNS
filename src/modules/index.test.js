@@ -1,7 +1,6 @@
 const chai = require('chai')
 const fs = require('fs')
 const chaiHttp = require('chai-http')
-const { users } = require('./model')
 const server = 'http://localhost:3000'
 
 chai.should()
@@ -200,6 +199,56 @@ describe('Test API', () => {
 
   describe('Test API role', () => {
     /**
+     * Test POST role
+     */
+    describe('POST API /roles', () => {
+      // it('It should post role', (done) => {
+      //   const role = {
+      //     username: 'Director',
+      //     role: 'Admin',
+      //     read: {
+      //       action: 'READ',
+      //       checkAction: true,
+      //     },
+      //     write: {
+      //       action: 'READ',
+      //       checkAction: true,
+      //     },
+      //     update: {
+      //       action: 'READ',
+      //       checkAction: true,
+      //     },
+      //     del: {
+      //       action: 'READ',
+      //       checkAction: true,
+      //     },
+      //     approve: {
+      //       action: 'READ',
+      //       checkAction: true,
+      //     },
+      //   }
+      //   chai
+      //     .request(server)
+      //     .post('/roles')
+      //     .set({ Authorization: `Bearer ${token}` })
+      //     .send(role)
+      //     .end((err, res) => {
+      //       res.should.have.status(200)
+      //       done()
+      //     })
+      // })
+      // it('It should not POST users', (done) => {
+      //   chai
+      //     .request(server)
+      //     .post('/user')
+      //     .set({ Authorization: `Bearer ${token}` })
+      //     .end((err, response) => {
+      //       response.should.have.status(404)
+      //       done()
+      //     })
+      // })
+    })
+    /**
      * Test get listRole
      */
     describe('GET API /roles', () => {
@@ -230,7 +279,7 @@ describe('Test API', () => {
      * Test get user by id
      */
     describe('GET API /roles/:id', () => {
-      it('It should get user', (done) => {
+      it('It should get role', (done) => {
         const roleId = '42b25e08-4b6b-4647-9dbb-e51aadd8270f'
         chai
           .request(server)
@@ -242,7 +291,7 @@ describe('Test API', () => {
           })
       })
 
-      it('It should not GET user', (done) => {
+      it('It should not GET role', (done) => {
         chai
           .request(server)
           .get('/roles/abc')
@@ -253,9 +302,68 @@ describe('Test API', () => {
           })
       })
     })
+
+    /**
+     * Test delete user by id
+     */
+    // describe('DELETE API /roles/:id', () => {
+    //   it('It should  DELETE  role', async (done) => {
+    //     const roleId = 'f520f285-4d1e-4bfc-847d-9879805ce4d3'
+    //     chai
+    //       .request(server)
+    //       .delete(`/roles/${roleId}`)
+    //       .set({ Authorization: `Bearer ${token}` })
+    //       .end((err, response) => {
+    //         response.should.have.status(200)
+    //         done()
+    //       })
+    //   })
+
+    //   it('It should not DELETE  role', (done) => {
+    //     const userId = 'b7974141-aa38-460b-b9c4-60c8102dddf'
+    //     chai
+    //       .request(server)
+    //       .delete(`/users/${userId}`)
+    //       .set({ Authorization: `Bearer ${token}` })
+    //       .end((err, response) => {
+    //         response.should.have.status(404)
+    //         done()
+    //       })
+    //   })
+    // })
   })
 
   describe('Test API department', () => {
+    /**
+     * Test POST department
+     */
+    describe('POST API /department', () => {
+      // it('It should post department', (done) => {
+      //   const department = {
+      //     name: 'Director',
+      //     address: 'Admin',
+      //   }
+      //   chai
+      //     .request(server)
+      //     .post('/department')
+      //     .set({ Authorization: `Bearer ${token}` })
+      //     .send(department)
+      //     .end((err, res) => {
+      //       res.should.have.status(200)
+      //       done()
+      //     })
+      // })
+      // it('It should not POST department', (done) => {
+      //   chai
+      //     .request(server)
+      //     .post('/departments')
+      //     .set({ Authorization: `Bearer ${token}` })
+      //     .end((err, response) => {
+      //       response.should.have.status(404)
+      //       done()
+      //     })
+      // })
+    })
     /**
      * Test get listDepartment
      */
@@ -310,9 +418,68 @@ describe('Test API', () => {
           })
       })
     })
+
+    /**
+     * Test delete user by id
+     */
+    // describe('DELETE API /department/:id', () => {
+    //   it('It should  DELETE  department', async (done) => {
+    //     const departmentId = '42cd2faf-5341-45b6-b111-4d007eb2e3cc'
+    //     chai
+    //       .request(server)
+    //       .delete(`/department/${departmentId}`)
+    //       .set({ Authorization: `Bearer ${token}` })
+    //       .end((err, response) => {
+    //         response.should.have.status(200)
+    //         done()
+    //       })
+    //   })
+
+    //   it('It should not DELETE  department', (done) => {
+    //     const departmentId = '42cd2faf-5341-45b6-b111-4d007eb2e3c'
+    //     chai
+    //       .request(server)
+    //       .delete(`/department/${departmentId}`)
+    //       .set({ Authorization: `Bearer ${token}` })
+    //       .end((err, response) => {
+    //         response.should.have.status(404)
+    //         done()
+    //       })
+    //   })
+    // })
   })
 
   describe('Test API form', () => {
+    /**
+     * Test POST form
+     */
+    describe('POST API /forms', () => {
+      // it('It should post forms', (done) => {
+      //   const department = {
+      //     content: 'thu viec',
+      //     type: 'job',
+      //   }
+      //   chai
+      //     .request(server)
+      //     .post('/department')
+      //     .set({ Authorization: `Bearer ${token}` })
+      //     .send(department)
+      //     .end((err, res) => {
+      //       res.should.have.status(200)
+      //       done()
+      //     })
+      // })
+      // it('It should not POST form', (done) => {
+      //   chai
+      //     .request(server)
+      //     .post('/formss')
+      //     .set({ Authorization: `Bearer ${token}` })
+      //     .end((err, response) => {
+      //       response.should.have.status(404)
+      //       done()
+      //     })
+      // })
+    })
     /**
      * Test get listForm
      */
@@ -345,7 +512,7 @@ describe('Test API', () => {
      */
     describe('GET API /forms/:id', () => {
       it('It should get form', (done) => {
-        const formId = 'c1a69879-6bd4-419a-94e0-abbab98de918'
+        const formId = 'aebb719e-fa35-43c8-a9a4-49b7b1580567'
         chai
           .request(server)
           .get(`/forms/${formId}`)
@@ -367,6 +534,32 @@ describe('Test API', () => {
           })
       })
     })
+
+    // describe('DELETE API /forms/:id', () => {
+    //   it('It should  DELETE  form', async (done) => {
+    //     const formId = '7ba0197a-8174-4c21-b803-531b25b27190'
+    //     chai
+    //       .request(server)
+    //       .delete(`/department/${formId}`)
+    //       .set({ Authorization: `Bearer ${token}` })
+    //       .end((err, response) => {
+    //         response.should.have.status(200)
+    //         done()
+    //       })
+    //   })
+
+    //   it('It should not DELETE  form', (done) => {
+    //     const formId = '7ba0197a-8174-4c21-b803-531b25b2719'
+    //     chai
+    //       .request(server)
+    //       .delete(`/department/${formId}`)
+    //       .set({ Authorization: `Bearer ${token}` })
+    //       .end((err, response) => {
+    //         response.should.have.status(404)
+    //         done()
+    //       })
+    //   })
+    // })
   })
 
   describe('Test API report', () => {
