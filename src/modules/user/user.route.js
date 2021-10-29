@@ -3,6 +3,7 @@ const multer = require('multer')
 const router = express.Router()
 const userController = require('./user.controller')
 const { authenToken, restrictTo, permission } = require('../auth/auth.middleware')
+const userMiddleware = require('./user.middleware')
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, './public/images')
@@ -119,7 +120,14 @@ router.get(
  *                  description: Success
  *
  */
-router.put('/profile', authenToken, permission('UPDATE'), upload.single('photo'), userController.editP)
+router.put(
+  '/profile',
+  authenToken,
+  permission('UPDATE'),
+  upload.single('photo'),
+  userMiddleware.sendEditData,
+  userController.editP
+)
 
 /**
  * @swagger
@@ -147,7 +155,15 @@ router.put('/profile', authenToken, permission('UPDATE'), upload.single('photo')
  *                  description: Success
  *
  */
-router.put('/:id', authenToken, restrictTo('Admin'), permission('UPDATE'), upload.single('photo'), userController.edit)
+router.put(
+  '/:id',
+  authenToken,
+  restrictTo('Admin'),
+  permission('UPDATE'),
+  upload.single('photo'),
+  userMiddleware.sendEditData,
+  userController.edit
+)
 
 /**
  * @swagger
@@ -185,7 +201,15 @@ router.get('/', authenToken, restrictTo('Admin'), permission('READ'), userContro
  *       500:
  *          description: Failure in create user
  */
-router.post('/', authenToken, restrictTo('Admin'), permission('WRITE'), upload.single('photo'), userController.signup)
+router.post(
+  '/',
+  authenToken,
+  restrictTo('Admin'),
+  permission('WRITE'),
+  upload.single('photo'),
+  userMiddleware.sendData,
+  userController.signup
+)
 
 /**
  * @swagger
