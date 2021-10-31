@@ -2,80 +2,72 @@
 const { Op } = require('sequelize')
 const AppError = require('../../error/appError')
 const { users, forms, departments, roles, reports } = require('../model')
-const { schemaValidate } = require('./form.validate')
 const transporter = require('../mailer')
+const formService = require('./form.service')
+const userService = require('../user/user.services')
+const err = require('../../error/config')
 
 class FormController {
   //POST create form
   async create(req, res, next) {
     const data = req.body
-    try {
-      const value = await schemaValidate.validateAsync(data)
-      const { content, type } = value
-      const listUser = await users.findAll()
-      listUser.forEach(async (e) => {
-        if (e.username !== 'Admin') {
-          const listForm = await forms.findAll({
-            where: {
-              userId: e.id,
-              status: { [Op.ne]: 'closed' },
-              createdAt: {
-                [Op.lt]: new Date(),
-                [Op.gt]: new Date(new Date() - 24 * 60 * 60 * 10),
-              },
+    const { content, type } = data
+    const listUser = await userService.findAll()
+    listUser.forEach(async (e) => {
+      if (e.username !== 'Admin') {
+        const listForm = await forms.findAll({
+          where: {
+            userId: e.id,
+            status: { [Op.ne]: 'closed' },
+            createdAt: {
+              [Op.lt]: new Date(),
+              [Op.gt]: new Date(new Date() - 24 * 60 * 60 * 10),
             },
-          })
-          if (listForm.length < 1) {
-            await forms.create(
-              {
-                content,
-                userId: e.id,
-                type,
-              },
-              { include: [users] }
-            )
-          }
+          },
+        })
+        if (listForm.length < 1) {
+          await forms.create(
+            {
+              content,
+              userId: e.id,
+              type,
+            },
+            { include: [users] }
+          )
         }
-      })
-      const listForm = await forms.findAll({ include: [users] })
-
-      const listEmail = []
-      for (const element of listUser) {
-        listEmail.push(element.email)
       }
+    })
+    const listForm = await formService.findAll({ include: [users] })
 
-      //Send mail to user
-      const mailOption = {
-        from: '"Notification" <dungpt.ct2@gmail.com>',
-        to: listEmail,
-        subject: 'Notification',
-        html: `<h2> Admin created ${type} form </h2>`,
-      }
-
-      //Sending mail
-      transporter.sendMail(mailOption, (err) => {
-        if (err) {
-          console.log(err)
-        }
-      })
-
-      res.status(200).json({
-        status: 'Success',
-        data: {
-          listForm,
-        },
-      })
-    } catch (error) {
-      next(new AppError(error, 'Fail', 400))
+    const listEmail = []
+    for (const element of listUser) {
+      listEmail.push(element.email)
     }
+
+    //Sending mail
+    transporter.sendMail(await formService.mailOption(listEmail, type), (err) => {
+      if (err) {
+        console.log(err)
+      } else {
+        res.status(200).json({
+          status: 'Success',
+          data: {
+            listForm,
+          },
+        })
+      }
+    })
   }
 
   //PUT send form
   async send(req, res, next) {
-    const user = await users.findOne({ where: { username: req.user.username } })
-    const listForm = await forms.findAll({ where: { userId: user.id, status: 'new' } })
+    const user = await userService.findOne({ where: { username: req.user.username } })
+    if (user.statusCode) {
+      return next(user)
+    }
+    const listForm = await formService.findAll({ where: { userId: user.id, status: 'new' } })
     if (listForm.length === 0) {
-      return next(new AppError('Form has expired', 'Fail', 400))
+      return next(new AppError(err.errExpired.message, err.errExpired.status, err.errExpired.statusCode))
     }
     for (const e of listForm) {
       const report = await reports.findOne({ where: { formId: e.id } })
@@ -94,7 +86,7 @@ class FormController {
   async approval(req, res, next) {
     const formId = req.params.id
     const data = req.body
-    const form = await forms.findByPk(formId)
+    const form = await formService.findByPk(formId)
     if (form.status === 'submitted') {
       const user = await users.findOne({
         where: {
@@ -102,7 +94,7 @@ class FormController {
         },
         include: [departments, roles],
       })
-      const userApprove = await users.findOne({
+      const userApprove = await userService.findOne({
         where: {
           username: req.user.username,
         },

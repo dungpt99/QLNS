@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const roleController = require('./role.controller')
 const { authenToken, restrictTo, permission } = require('../auth/auth.middleware')
+const roleMiddleware = require('./role.middleware')
 
 /**
  * @swagger
@@ -125,7 +126,7 @@ router.get('/:id', authenToken, restrictTo('Admin'), permission('READ'), roleCon
  *       500:
  *          description: Failure in create role
  */
-router.post('/', authenToken, restrictTo('Admin'), permission('WRITE'), roleController.create)
+router.post('/', authenToken, restrictTo('Admin'), permission('WRITE'), roleMiddleware.validate, roleController.create)
 
 /**
  * @swagger
@@ -171,7 +172,7 @@ router.get('/', authenToken, restrictTo('Admin'), permission('READ'), roleContro
  *                  description: Fail
  *
  */
-router.put('/:id', authenToken, restrictTo('Admin'), permission('UPDATE'), roleController.edit)
+router.put('/:id', authenToken, restrictTo('Admin'), permission('UPDATE'), roleMiddleware.validate, roleController.edit)
 
 /**
  * @swagger

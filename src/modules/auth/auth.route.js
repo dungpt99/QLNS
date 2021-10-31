@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const authController = require('./auth.controller')
-const { authenToken } = require('./auth.middleware')
+const { authenToken, validate } = require('./auth.middleware')
 
 /**
  * @swagger
@@ -145,6 +145,6 @@ router.post('/refreshToken', authController.refreshToken)
  *       500:
  *          description: Fail
  */
-router.post('/resetPassword', authController.resetPassword)
+router.post('/resetPassword', validate, authController.resetPassword)
 
 module.exports = router

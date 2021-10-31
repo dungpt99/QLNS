@@ -1,28 +1,23 @@
-const AppError = require('../../error/appError')
 const { departments, users, roles } = require('../model')
-const { schemaValidate } = require('./department.validate')
+const departmentService = require('./department.service')
+const userService = require('../user/user.services')
 class DepartmentController {
   //POST create department
   async create(req, res, next) {
     const data = req.body
-    try {
-      const value = await schemaValidate.validateAsync(data)
-      const { name, address } = value
-      const department = await departments.create({
-        name,
-        address,
-      })
-      res.status(200).json({
-        department,
-      })
-    } catch (error) {
-      next(new AppError(error, 'Fail', 400))
-    }
+    const { name, address } = data
+    const department = await departmentService.create({
+      name,
+      address,
+    })
+    res.status(200).json({
+      department,
+    })
   }
 
   //GET listDepartment
   async show(req, res, next) {
-    const listDepartment = await departments.findAll({ include: [users] })
+    const listDepartment = await departmentService.findAll({ include: [users] })
     res.status(200).json({
       listDepartment,
     })
@@ -31,8 +26,7 @@ class DepartmentController {
   //GET department
   async find(req, res, next) {
     const departmentId = req.params.id
-    console.log(departmentId)
-    const department = await departments.findByPk(departmentId)
+    const department = await departmentService.findByPk(departmentId)
     res.status(200).json({
       department,
     })
@@ -42,58 +36,55 @@ class DepartmentController {
   async edit(req, res, next) {
     const departmentId = req.params.id
     const data = req.body
-    try {
-      const value = await schemaValidate.validateAsync(data)
-      const { name, address } = value
-      await departments.update(
-        {
-          name,
-          address,
+    const { name, address } = data
+    await departmentService.update(
+      {
+        name,
+        address,
+      },
+      {
+        where: {
+          id: departmentId,
         },
-        {
-          where: {
-            id: departmentId,
-          },
-        }
-      )
-      const department = await departments.findByPk(departmentId)
-      res.status(200).json({
-        department,
-      })
-    } catch (error) {
-      next(new AppError(error, 'Fail', 400))
-    }
+      }
+    )
+    const department = await departments.findByPk(departmentId)
+    res.status(200).json({
+      department,
+    })
   }
 
   //POST add user
   async addUser(req, res, next) {
     const data = req.body
-    try {
-      const user = await users.findOne({
-        where: { username: data.username },
-        include: {
-          model: roles,
-        },
-      })
-      const department = await departments.findOne({ where: { name: data.department } })
-      await user.addDepartments(department)
-      await department.addUsers(user)
-      const result = await users.findOne({
-        where: { username: data.username },
-        include: [roles, departments],
-      })
-      res.status(200).json({
-        result,
-      })
-    } catch (error) {
-      next(new AppError(error, 'Fail', 400))
+    const user = await userService.findOne({
+      where: { username: data.username },
+      include: {
+        model: roles,
+      },
+    })
+    if (user.statusCode) {
+      return next(user)
     }
+    const department = await departmentService.findOne({ where: { name: data.department } })
+    if (department.statusCode) {
+      return next(department)
+    }
+    await user.addDepartments(department)
+    await department.addUsers(user)
+    const result = await userService.findOne({
+      where: { username: data.username },
+      include: [roles, departments],
+    })
+    res.status(200).json({
+      result,
+    })
   }
 
   //DELETE
   async delete(req, res, next) {
     const departmentId = req.params.id
-    await departments.destroy({
+    await departmentService.destroy({
       where: {
         id: departmentId,
       },

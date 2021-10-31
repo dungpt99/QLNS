@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const departmentController = require('./department.controller')
 const { authenToken, restrictTo, permission } = require('../auth/auth.middleware')
+const departmentMiddleware = require('./department.middleware')
 
 /**
  * @swagger
@@ -50,7 +51,14 @@ const { authenToken, restrictTo, permission } = require('../auth/auth.middleware
  *       500:
  *          description: Failure in create Department
  */
-router.post('/', authenToken, restrictTo('Admin'), permission('WRITE'), departmentController.create)
+router.post(
+  '/',
+  authenToken,
+  restrictTo('Admin'),
+  permission('WRITE'),
+  departmentMiddleware.validate,
+  departmentController.create
+)
 
 /**
  * @swagger
@@ -141,7 +149,14 @@ router.get('/:id', authenToken, permission('READ'), departmentController.find)
  *                  description: Fail
  *
  */
-router.put('/:id', authenToken, restrictTo('Admin'), permission('UPDATE'), departmentController.edit)
+router.put(
+  '/:id',
+  authenToken,
+  restrictTo('Admin'),
+  permission('UPDATE'),
+  departmentMiddleware.validate,
+  departmentController.edit
+)
 
 /**
  * @swagger

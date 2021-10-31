@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const formController = require('./form.controller')
 const { authenToken, restrictTo, permission } = require('../auth/auth.middleware')
+const formMiddleware = require('./form.middleware')
 
 /**
  * @swagger
@@ -47,7 +48,14 @@ const { authenToken, restrictTo, permission } = require('../auth/auth.middleware
  *       500:
  *          description: Failure in create form
  */
-router.post('/', authenToken, restrictTo('Admin', 'Hr'), permission('WRITE'), formController.create)
+router.post(
+  '/',
+  authenToken,
+  restrictTo('Admin', 'Hr'),
+  permission('WRITE'),
+  formMiddleware.validate,
+  formController.create
+)
 
 /**
  * @swagger
