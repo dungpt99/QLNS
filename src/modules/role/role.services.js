@@ -1,11 +1,11 @@
 const bcrypt = require('bcrypt')
 const AppError = require('../../error/appError')
 const err = require('../../error/config')
-const { users } = require('../model')
-class UserService {
+const { roles } = require('../model')
+class RoleService {
   async create(obj) {
     try {
-      const result = await users.create(obj)
+      const result = await roles.create(obj)
       return result
     } catch (error) {
       return new AppError(error.errors[0].message, 'Fail', 400)
@@ -13,7 +13,7 @@ class UserService {
   }
 
   async findOne(condition) {
-    const result = await users.findOne(condition)
+    const result = await roles.findOne(condition)
     if (result === null) {
       return new AppError(err.notFound.message, err.notFound.status, err.notFound.statusCode)
     }
@@ -21,22 +21,22 @@ class UserService {
   }
 
   async update(data, condition) {
-    const result = await users.update(data, condition)
+    const result = await roles.update(data, condition)
     return result
   }
 
   async findAll(condition) {
-    const result = await users.findAll(condition)
+    const result = await roles.findAll(condition)
     return result
   }
 
   async findByPk(id) {
-    const result = await users.findByPk(id)
+    const result = await roles.findByPk(id)
     return result
   }
 
   async destroy(condition) {
-    const result = await users.destroy(condition)
+    const result = await roles.destroy(condition)
     return result
   }
 
@@ -57,4 +57,4 @@ class UserService {
     }
   }
 }
-module.exports = new UserService()
+module.exports = new RoleService()

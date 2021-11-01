@@ -1,6 +1,6 @@
-const bcrypt = require('bcrypt')
-const { users, roles, departments } = require('../model')
+const { roles, departments } = require('../model')
 const AppError = require('../../error/appError')
+const err = require('../../error/config')
 const transporter = require('../mailer')
 const userService = require('./user.services')
 
@@ -8,9 +8,6 @@ class UserController {
   // GET
   async show(req, res, next) {
     const listUser = await userService.findAll({ include: [roles, departments] })
-    if (listUser === null) {
-      return next(new AppError('', 'Success', 200))
-    }
     res.status(200).json({
       message: 'Success',
       data: listUser,
@@ -32,27 +29,18 @@ class UserController {
   //POST create user
   async signup(req, res, next) {
     const data = req.body
+    data.status = false
     const user = await userService.create(data)
     if (user.statusCode) {
       return next(user)
     }
-    const mailOption = {
-      from: '"New user" <dungpt.ct2@gmail.com>',
-      to: user.email,
-      subject: 'DungPT -Welcome to VMO',
-      html: `<h2> Username:${user.username} </h2>
-                <h2>Password:${user.password}</h2>
-                <a href='http://${req.headers.host}/users/verify-email?username=${user.username}'>Click here to active your account</a>`,
-    }
-    const salt = await bcrypt.genSalt(10)
-    const hashPassword = await bcrypt.hash(user.password, salt)
-    user.password = hashPassword
-    await user.save()
     // Sending mail
-    transporter.sendMail(mailOption, (err) => {
+    transporter.sendMail(await userService.mailOption(user, req), async (err) => {
       if (err) {
         console.log(err)
       } else {
+        user.password = await userService.hashPassword(user)
+        await user.save()
         res.status(200).json({
           message: 'Verification email is sent your gmail account',
         })
@@ -64,7 +52,7 @@ class UserController {
   async edit(req, res, next) {
     const userId = req.params.id
     const data = req.body
-    await users.update(data, {
+    await userService.update(data, {
       where: {
         id: userId,
       },
@@ -102,11 +90,13 @@ class UserController {
     const { username } = req.query
     const user = await userService.findOne({ where: { username } })
     if (user === null) {
-      next(new AppError('Email is not verified', 'Fail', 404))
+      next(new AppError(err.notFound.message, err.notFound.status, err.notFound.statusCode))
     } else {
       user.status = true
       await user.save()
-      next(new AppError('Email is verified', 'Success', 200))
+      res.status(200).json({
+        message: 'Email is verified',
+      })
     }
   }
 
@@ -119,10 +109,7 @@ class UserController {
     data.forEach((e) => array.push(e.dataValues.id))
 
     if (!array.includes(val)) {
-      return res.status(404).json({
-        status: 'Fail',
-        message: 'Invalid ID',
-      })
+      return next(new AppError(err.errId.message, err.errId.status, err.errId.statusCode))
     }
     next()
   }

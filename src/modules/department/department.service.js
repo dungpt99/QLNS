@@ -1,11 +1,11 @@
 const bcrypt = require('bcrypt')
 const AppError = require('../../error/appError')
 const err = require('../../error/config')
-const { users } = require('../model')
-class UserService {
+const { departments } = require('../model')
+class DepartmentService {
   async create(obj) {
     try {
-      const result = await users.create(obj)
+      const result = await departments.create(obj)
       return result
     } catch (error) {
       return new AppError(error.errors[0].message, 'Fail', 400)
@@ -13,7 +13,7 @@ class UserService {
   }
 
   async findOne(condition) {
-    const result = await users.findOne(condition)
+    const result = await departments.findOne(condition)
     if (result === null) {
       return new AppError(err.notFound.message, err.notFound.status, err.notFound.statusCode)
     }
@@ -21,22 +21,22 @@ class UserService {
   }
 
   async update(data, condition) {
-    const result = await users.update(data, condition)
+    const result = await departments.update(data, condition)
     return result
   }
 
   async findAll(condition) {
-    const result = await users.findAll(condition)
+    const result = await departments.findAll(condition)
     return result
   }
 
   async findByPk(id) {
-    const result = await users.findByPk(id)
+    const result = await departments.findByPk(id)
     return result
   }
 
   async destroy(condition) {
-    const result = await users.destroy(condition)
+    const result = await departments.destroy(condition)
     return result
   }
 
@@ -45,16 +45,5 @@ class UserService {
     const hashPassword = await bcrypt.hash(user.password, salt)
     return hashPassword
   }
-
-  async mailOption(user, req) {
-    return {
-      from: '"New user" <dungpt.ct2@gmail.com>',
-      to: user.email,
-      subject: 'DungPT -Welcome to VMO',
-      html: `<h2> Username:${user.username} </h2>
-                <h2>Password:${user.password}</h2>
-                <a href='http://${req.headers.host}/users/verify-email?username=${user.username}'>Click here to active your account</a>`,
-    }
-  }
 }
-module.exports = new UserService()
+module.exports = new DepartmentService()

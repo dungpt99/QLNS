@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken')
 const AppError = require('../../error/appError')
 const { users, roles, permissions } = require('../model')
+const passwordValidate = require('./auth.validate')
 
 exports.authenToken = (req, res, next) => {
   const authorizationHeader = req.headers.authorization
@@ -50,5 +51,15 @@ exports.permission = (per) => {
       return next(new AppError('You do not have permission to perform this action', 'Fail', 403))
     }
     next()
+  }
+}
+
+exports.validate = async (req, res, next) => {
+  const data = req.body
+  try {
+    await passwordValidate.validateAsync(data)
+    next()
+  } catch (error) {
+    return next(new AppError(error, 'Fail', 400))
   }
 }
